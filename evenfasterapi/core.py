@@ -18,8 +18,8 @@ class JSONAPIRouter(APIRouter):
     def __repr__(self):
         return f"[{self.__class__.__name__}]"
 
-    def __init__(self, bearer_name: str = None):
-        super().__init__()
+    def __init__(self, bearer_name: str = None, **api_router_kwargs):
+        super().__init__(**api_router_kwargs)
         self.tokens = []
         self.bearer_prefix = self.__class__.__name__ or bearer_name
         self.bearer_name = f"{self.bearer_prefix}-bearer"

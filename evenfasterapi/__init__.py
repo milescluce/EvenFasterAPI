@@ -1,1 +1,1 @@
-from .core import JSONAPI
+from .core import JSONAPIRouter

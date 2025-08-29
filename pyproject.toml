@@ -1,6 +1,6 @@
 [project]
 name = "evenfasterapi"
-version = "0.1.2"
+version = "0.1.21"
 description = ""
 authors = [
     {name = "Miles Copeland Luce"}
@@ -9,6 +9,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi (>=0.116.1,<0.117.0)"
 ]
 
 
