@@ -1,6 +1,7 @@
 import secrets
 from typing import Any
 
+from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from toomanythreads import ThreadedServer
@@ -13,7 +14,7 @@ JSON_RESP = {
     "content": None,
 }
 
-class JSONAPI(ThreadedServer):
+class JSONAPIRouter(APIRouter):
     def __repr__(self):
         return f"[{self.__class__.__name__}]"
 
@@ -26,14 +27,6 @@ class JSONAPI(ThreadedServer):
         self.admin_bearer_pass = secrets.token_urlsafe(64)
         log.warning(f"{self}: Initialized with admin_bearer_pass='{self.admin_bearer_pass}' - Keep this safe!")
 
-        @self.middleware("http")
-        async def json_middleware(request: Request, call_next):
-            if not "give_token" in request.url.path:
-                bearer = request.headers.get(self.bearer_name)
-                if bearer not in self.tokens:
-                    return self.json_error(request, "Authorization denied")
-            return await call_next(request)
-
         @self.post("/give_token")
         async def give_token(request: Request):
             user_pass = request.headers.get(self.admin_bearer_name)
@@ -43,6 +36,13 @@ class JSONAPI(ThreadedServer):
                 if user_pass == self.admin_bearer_pass:
                     return self.json_success(request, self.give_token(user_pass), 200)
                 else: return self.json_error(request, "Authorization denied")
+
+    async def json_middleware(self, request: Request, call_next):
+        if not "give_token" in request.url.path:
+            bearer = request.headers.get(self.bearer_name)
+            if bearer not in self.tokens:
+                return self.json_error(request, "Authorization denied")
+        return await call_next(request)
 
     def give_token(self, admin_pass):
         if admin_pass == self.admin_bearer_pass: return self.generate_token()
